@@ -6016,6 +6016,99 @@
             }
           }
         }
+      }
+    },
+    "renamelabels6": {
+      "process_id": "rename_labels",
+      "arguments": {
+        "data": {
+          "from_node": "renamelabels2"
+        },
+        "dimension": "bands",
+        "target": [
+          "B02",
+          "B03",
+          "B04",
+          "B08",
+          "NDWI",
+          "NDVI"
+        ]
+      }
+    },
+    "filtertemporal3": {
+      "process_id": "filter_temporal",
+      "arguments": {
+        "data": {
+          "from_node": "renamelabels6"
+        },
+        "extent": [
+          {
+            "from_parameter": "start_date"
+          },
+          {
+            "from_node": "dateshift1"
+          }
+        ]
+      }
+    },
+    "reducedimension44": {
+      "process_id": "reduce_dimension",
+      "arguments": {
+        "data": {
+          "from_node": "filtertemporal3"
+        },
+        "dimension": "t",
+        "reducer": {
+          "process_graph": {
+            "median4": {
+              "process_id": "median",
+              "arguments": {
+                "data": {
+                  "from_parameter": "data"
+                }
+              },
+              "result": true
+            }
+          }
+        }
+      }
+    },
+    "filterbands21": {
+      "process_id": "filter_bands",
+      "arguments": {
+        "bands": [
+          "B04",
+          "B03",
+          "B02"
+        ],
+        "data": {
+          "from_node": "reducedimension44"
+        }
+      }
+    },
+    "mergecubes7": {
+      "process_id": "merge_cubes",
+      "arguments": {
+        "cube1": {
+          "from_node": "apply5"
+        },
+        "cube2": {
+          "from_node": "filterbands21"
+        }
+      }
+    },
+    "if46": {
+      "process_id": "if",
+      "arguments": {
+        "accept": {
+          "from_node": "mergecubes7"
+        },
+        "reject": {
+          "from_node": "apply5"
+        },
+        "value": {
+          "from_parameter": "rgb_processing"
+        }
       },
       "result": true
     }
