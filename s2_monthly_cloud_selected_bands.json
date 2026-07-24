@@ -1,0 +1,271 @@
+{
+  "process_graph": {
+    "loadcollection1": {
+      "process_id": "load_collection",
+      "arguments": {
+        "bands": {
+          "from_parameter": "bands"
+        },
+        "id": "SENTINEL2_L2A",
+        "properties": {
+          "eo:cloud_cover": {
+            "process_graph": {
+              "lte1": {
+                "process_id": "lte",
+                "arguments": {
+                  "x": {
+                    "from_parameter": "value"
+                  },
+                  "y": {
+                    "from_parameter": "cloud_cover_2022_01"
+                  }
+                },
+                "result": true
+              }
+            }
+          }
+        },
+        "spatial_extent": {
+          "from_parameter": "spatial_extent"
+        },
+        "temporal_extent": [
+          "2022-01-01",
+          "2022-02-01"
+        ]
+      }
+    },
+    "loadcollection2": {
+      "process_id": "load_collection",
+      "arguments": {
+        "bands": {
+          "from_parameter": "bands"
+        },
+        "id": "SENTINEL2_L2A",
+        "properties": {
+          "eo:cloud_cover": {
+            "process_graph": {
+              "lte2": {
+                "process_id": "lte",
+                "arguments": {
+                  "x": {
+                    "from_parameter": "value"
+                  },
+                  "y": {
+                    "from_parameter": "cloud_cover_2022_02"
+                  }
+                },
+                "result": true
+              }
+            }
+          }
+        },
+        "spatial_extent": {
+          "from_parameter": "spatial_extent"
+        },
+        "temporal_extent": [
+          "2022-02-01",
+          "2022-03-01"
+        ]
+      }
+    },
+    "mergecubes1": {
+      "process_id": "merge_cubes",
+      "arguments": {
+        "cube1": {
+          "from_node": "loadcollection1"
+        },
+        "cube2": {
+          "from_node": "loadcollection2"
+        }
+      }
+    },
+    "loadcollection3": {
+      "process_id": "load_collection",
+      "arguments": {
+        "bands": {
+          "from_parameter": "bands"
+        },
+        "id": "SENTINEL2_L2A",
+        "properties": {
+          "eo:cloud_cover": {
+            "process_graph": {
+              "lte3": {
+                "process_id": "lte",
+                "arguments": {
+                  "x": {
+                    "from_parameter": "value"
+                  },
+                  "y": {
+                    "from_parameter": "cloud_cover_2022_03"
+                  }
+                },
+                "result": true
+              }
+            }
+          }
+        },
+        "spatial_extent": {
+          "from_parameter": "spatial_extent"
+        },
+        "temporal_extent": [
+          "2022-03-01",
+          "2022-04-01"
+        ]
+      }
+    },
+    "mergecubes2": {
+      "process_id": "merge_cubes",
+      "arguments": {
+        "cube1": {
+          "from_node": "mergecubes1"
+        },
+        "cube2": {
+          "from_node": "loadcollection3"
+        }
+      },
+      "result": true
+    }
+  },
+  "id": "s2_monthly_cloud_selected_bands",
+  "summary": "Loads Sentinel-2 L2A bands with month-specific cloud cover.",
+  "description": "Loads Sentinel-2 L2A data for fixed monthly periods. The user provides selected bands and a separate maximum cloud cover value per month.",
+  "returns": {
+    "description": "A Sentinel-2 L2A data cube containing user-selected bands. Each configured month has its own cloud cover parameter.",
+    "schema": {
+      "type": "object",
+      "subtype": "datacube"
+    }
+  },
+  "parameters": [
+    {
+      "name": "spatial_extent",
+      "description": "Limits the data to process to the specified bounding box or polygons.\n\nFor raster data, the process loads the pixel into the data cube if the point\nat the pixel center intersects with the bounding box or any of the polygons\n(as defined in the Simple Features standard by the OGC).\n\nFor vector data, the process loads the geometry into the data cube if the geometry\nis fully within the bounding box or any of the polygons (as defined in the\nSimple Features standard by the OGC). Empty geometries may only be in the\ndata cube if no spatial extent has been provided.\n\nEmpty geometries are ignored.\n\nSet this parameter to null to set no limit for the spatial extent.",
+      "schema": [
+        {
+          "title": "Bounding Box",
+          "type": "object",
+          "subtype": "bounding-box",
+          "required": [
+            "west",
+            "south",
+            "east",
+            "north"
+          ],
+          "properties": {
+            "west": {
+              "description": "West (lower left corner, coordinate axis 1).",
+              "type": "number"
+            },
+            "south": {
+              "description": "South (lower left corner, coordinate axis 2).",
+              "type": "number"
+            },
+            "east": {
+              "description": "East (upper right corner, coordinate axis 1).",
+              "type": "number"
+            },
+            "north": {
+              "description": "North (upper right corner, coordinate axis 2).",
+              "type": "number"
+            },
+            "base": {
+              "description": "Base (optional, lower left corner, coordinate axis 3).",
+              "type": [
+                "number",
+                "null"
+              ],
+              "default": null
+            },
+            "height": {
+              "description": "Height (optional, upper right corner, coordinate axis 3).",
+              "type": [
+                "number",
+                "null"
+              ],
+              "default": null
+            },
+            "crs": {
+              "description": "Coordinate reference system of the extent, specified as as [EPSG code](http://www.epsg-registry.org/) or [WKT2 CRS string](http://docs.opengeospatial.org/is/18-010r7/18-010r7.html). Defaults to `4326` (EPSG code 4326) unless the client explicitly requests a different coordinate reference system.",
+              "anyOf": [
+                {
+                  "title": "EPSG Code",
+                  "type": "integer",
+                  "subtype": "epsg-code",
+                  "minimum": 1000,
+                  "examples": [
+                    3857
+                  ]
+                },
+                {
+                  "title": "WKT2",
+                  "type": "string",
+                  "subtype": "wkt2-definition"
+                }
+              ],
+              "default": 4326
+            }
+          }
+        },
+        {
+          "title": "Vector data cube",
+          "description": "Limits the data cube to the bounding box of the given geometries in the vector data cube. For raster data, all pixels inside the bounding box that do not intersect with any of the polygons will be set to no data (`null`). Empty geometries are ignored.",
+          "type": "object",
+          "subtype": "datacube",
+          "dimensions": [
+            {
+              "type": "geometry"
+            }
+          ]
+        },
+        {
+          "title": "No filter",
+          "description": "Don't filter spatially. All data is included in the data cube.",
+          "type": "null"
+        }
+      ]
+    },
+    {
+      "name": "bands",
+      "description": "List of Sentinel-2 bands to load, for example ['B02', 'B03', 'B04', 'B08'].",
+      "schema": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "default": [
+          "B02",
+          "B03",
+          "B04",
+          "B08"
+        ]
+      }
+    },
+    {
+      "name": "cloud_cover_2022_01",
+      "description": "Maximum cloud cover percentage for Sentinel-2 in 2022-01.",
+      "schema": {
+        "type": "number"
+      },
+      "default": 50,
+      "optional": true
+    },
+    {
+      "name": "cloud_cover_2022_02",
+      "description": "Maximum cloud cover percentage for Sentinel-2 in 2022-02.",
+      "schema": {
+        "type": "number"
+      },
+      "default": 50,
+      "optional": true
+    },
+    {
+      "name": "cloud_cover_2022_03",
+      "description": "Maximum cloud cover percentage for Sentinel-2 in 2022-03.",
+      "schema": {
+        "type": "number"
+      },
+      "default": 50,
+      "optional": true
+    }
+  ]
+}
