@@ -7264,7 +7264,7 @@
     },
     {
       "name": "region",
-      "description": "Eco-region of the area of interest, which selects the water probability model. To find the eco-region of your area, see the ecoregions map: https://ecoregions.appspot.com/ (pick the option closest to the biome shown there).",
+      "description": "Eco-region of the area of interest, which selects the water probability model. To find the eco-region of your area, see the RESOLVE Ecoregions map: https://ecoregions.appspot.com/ (pick the option closest to the biome shown there).",
       "schema": {
         "type": "string",
         "enum": [
